@@ -6,6 +6,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { DepartmentTemplate, FormField } from "@/lib/types";
 
+// Нэгжийн сонголтууд. value нь DB-д хадгалагдах утга, label нь дэлгэцэнд харагдах текст.
+const UNIT_OPTIONS = [
+  { value: "₮", mn: "₮ (төгрөг)", en: "₮ (MNT)" },
+  { value: "хүн", mn: "хүн", en: "people" },
+] as const;
+
+type UnitValue = (typeof UNIT_OPTIONS)[number]["value"];
+
 export function ManageFieldsModal({
   template,
   onClose,
@@ -20,7 +28,7 @@ export function ManageFieldsModal({
 
   const [fields, setFields] = useState<FormField[]>(template.form_schema);
   const [label, setLabel] = useState("");
-  const [unit, setUnit] = useState("");
+  const [unit, setUnit] = useState<UnitValue>("₮");
   const [frequency, setFrequency] = useState<FormField["frequency"]>("Сар");
   const [type, setType] = useState<FormField["type"]>("number");
   const [required, setRequired] = useState(true);
@@ -69,7 +77,7 @@ export function ManageFieldsModal({
     }
     const newField: FormField = {
       label: label.trim(),
-      unit: unit.trim(),
+      unit,
       frequency,
       type,
       required,
@@ -77,7 +85,7 @@ export function ManageFieldsModal({
     };
     saveFields([...fields, newField]);
     setLabel("");
-    setUnit("");
+    setUnit("₮");
   }
 
   // Бодитоор устгахгүй — "active: false" болгож л тэмдэглэнэ. Учир нь
@@ -239,17 +247,23 @@ export function ManageFieldsModal({
             placeholder={language === "mn" ? "Талбарын нэр" : "Field label"}
             className="glass-input rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 disabled:opacity-60 sm:col-span-2"
           />
-          <input
+          <select
             value={unit}
-            onChange={(e) => setUnit(e.target.value)}
+            onChange={(e) => setUnit(e.target.value as UnitValue)}
             disabled={isSaving}
-            placeholder={
-              language === "mn"
-                ? "Нэгж (жишээ нь: хүн, сая ₮)"
-                : "Unit (e.g. people, mn ₮)"
-            }
-            className="glass-input rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 disabled:opacity-60"
-          />
+            aria-label={language === "mn" ? "Нэгж" : "Unit"}
+            className="glass-input rounded-xl px-3.5 py-2.5 text-sm text-white disabled:opacity-60"
+          >
+            {UNIT_OPTIONS.map((opt) => (
+              <option
+                key={opt.value}
+                value={opt.value}
+                className="bg-[#0e1626]"
+              >
+                {language === "mn" ? opt.mn : opt.en}
+              </option>
+            ))}
+          </select>
           <select
             value={frequency}
             onChange={(e) =>

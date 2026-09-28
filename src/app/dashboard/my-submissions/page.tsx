@@ -2,7 +2,15 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, Plus, X, Clock, CheckCircle2, XCircle } from "lucide-react";
+import {
+  FileText,
+  Plus,
+  X,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Eye,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { FormSubmission, MyDepartment } from "@/lib/types";
@@ -302,6 +310,61 @@ function SubmissionFormModal({
   );
 }
 
+function ViewSubmissionModal({
+  submission,
+  onClose,
+}: {
+  submission: FormSubmission;
+  onClose: () => void;
+}) {
+  const { language } = useLanguage();
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="dash-card relative w-full max-w-3xl rounded-3xl p-6 shadow-2xl sm:p-7 max-h-[85vh] overflow-y-auto"
+      >
+        <div className="mb-1 flex items-center justify-between">
+          <h2 className="font-serif text-xl text-white">{submission.title}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex items-center justify-center rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <p className="mb-5 text-xs text-slate-500">
+          {new Date(submission.created_at).toLocaleString(
+            language === "mn" ? "mn-MN" : "en-US",
+          )}
+        </p>
+        <div className="grid grid-cols-1 gap-x-5 gap-y-3 sm:grid-cols-2">
+          {Object.entries(submission.data).map(([label, value]) => (
+            <div key={label} className="rounded-xl bg-white/5 px-3.5 py-2.5">
+              <p className="line-clamp-2 min-h-[2.25rem] text-xs font-semibold leading-[1.125rem] text-slate-500">
+                {label}
+              </p>
+              <p className="mt-1 text-sm text-white">{value}</p>
+            </div>
+          ))}
+        </div>
+        {submission.status === "rejected" && submission.rejection_reason && (
+          <p className="mt-5 rounded-xl border border-rose-500/20 bg-rose-500/5 px-3.5 py-2.5 text-sm text-rose-300">
+            {language === "mn" ? "Татгалзсан шалтгаан: " : "Rejection reason: "}
+            {submission.rejection_reason}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function MySubmissionsPage() {
   const { user, isInitializing, authorizedFetch } = useAuth();
   const { language } = useLanguage();
@@ -314,6 +377,7 @@ export default function MySubmissionsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editingSubmission, setEditingSubmission] =
     useState<FormSubmission | null>(null);
+  const [viewing, setViewing] = useState<FormSubmission | null>(null);
 
   useEffect(() => {
     if (!isInitializing && !user) router.replace("/login");
@@ -448,6 +512,14 @@ export default function MySubmissionsPage() {
                           <StatusIcon className="h-3 w-3" />
                           {statusLabel(s.status)}
                         </span>
+                        <button
+                          type="button"
+                          onClick={() => setViewing(s)}
+                          className="flex items-center justify-center rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white"
+                          aria-label={language === "mn" ? "Харах" : "View"}
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                        </button>
                         {s.status === "rejected" && (
                           <button
                             type="button"
@@ -496,6 +568,12 @@ export default function MySubmissionsPage() {
               prev.map((s) => (s.id === updated.id ? updated : s)),
             )
           }
+        />
+      )}
+      {viewing && (
+        <ViewSubmissionModal
+          submission={viewing}
+          onClose={() => setViewing(null)}
         />
       )}
     </DashboardShell>

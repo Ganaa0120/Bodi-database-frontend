@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import type { ThemeMode } from '@/lib/types';
+import React, { useEffect, useRef, useState } from "react";
+import type { ThemeMode } from "@/lib/types";
 
 interface BackgroundAmbientProps {
   themeMode: ThemeMode;
@@ -42,7 +42,10 @@ interface Particle {
   pulseSpeed: number;
 }
 
-export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode, backgroundImageSrc }) => {
+export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({
+  themeMode,
+  backgroundImageSrc,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
@@ -50,7 +53,7 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
   const mouseTargetRef = useRef({ x: 0.5, y: 0.5 });
   const mouseCurrentRef = useRef({ x: 0.5, y: 0.5 });
 
-  const isDark = themeMode === 'dark';
+  const isDark = themeMode === "dark";
 
   useEffect(() => {
     if (imgRef.current?.complete) {
@@ -65,15 +68,15 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
       mouseTargetRef.current = { x: nx, y: ny };
     };
 
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     let animationFrameId: number;
@@ -87,7 +90,7 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
       initTracks();
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     type PathFn = (t: number, w: number, h: number) => { x: number; y: number };
     let tracks: PathFn[] = [];
@@ -97,34 +100,196 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
 
     const initTracks = () => {
       tracks = [
-        (t, w, h) => ({ x: t * (w + 400) - 200, y: h * 0.18 + Math.sin(t * Math.PI * 2) * 35 }),
+        (t, w, h) => ({
+          x: t * (w + 400) - 200,
+          y: h * 0.18 + Math.sin(t * Math.PI * 2) * 35,
+        }),
         (t, w, h) => ({ x: t * (w + 300) - 150, y: h * 0.08 + t * (h * 0.55) }),
-        (t, w, h) => ({ x: t * (w + 400) - 200, y: h * 0.5 + Math.sin(t * Math.PI * 3) * 20 }),
-        (t, w, h) => ({ x: (1 - t) * (w + 300) - 150, y: h * 0.85 - t * (h * 0.6) }),
-        (t, w, h) => ({ x: t * (w + 400) - 200, y: h * 0.78 + Math.cos(t * Math.PI * 2) * 40 }),
-        (t, w, h) => ({ x: (1 - t) * (w + 400) - 200, y: h * 0.32 + Math.sin(t * Math.PI) * 80 }),
+        (t, w, h) => ({
+          x: t * (w + 400) - 200,
+          y: h * 0.5 + Math.sin(t * Math.PI * 3) * 20,
+        }),
+        (t, w, h) => ({
+          x: (1 - t) * (w + 300) - 150,
+          y: h * 0.85 - t * (h * 0.6),
+        }),
+        (t, w, h) => ({
+          x: t * (w + 400) - 200,
+          y: h * 0.78 + Math.cos(t * Math.PI * 2) * 40,
+        }),
+        (t, w, h) => ({
+          x: (1 - t) * (w + 400) - 200,
+          y: h * 0.32 + Math.sin(t * Math.PI) * 80,
+        }),
       ];
 
       nodes = [
-        { x: width * 0.15, y: height * 0.22, baseRadius: 3, pulsePhase: 0, colorDark: '#38bdf8', colorLight: '#0072ce' },
-        { x: width * 0.35, y: height * 0.19, baseRadius: 2.5, pulsePhase: 1.5, colorDark: '#60a5fa', colorLight: '#f37021' },
-        { x: width * 0.78, y: height * 0.26, baseRadius: 3.5, pulsePhase: 3.2, colorDark: '#38bdf8', colorLight: '#0072ce' },
-        { x: width * 0.88, y: height * 0.42, baseRadius: 2.8, pulsePhase: 4.1, colorDark: '#818cf8', colorLight: '#2563eb' },
-        { x: width * 0.22, y: height * 0.51, baseRadius: 3, pulsePhase: 0.8, colorDark: '#38bdf8', colorLight: '#f37021' },
-        { x: width * 0.75, y: height * 0.52, baseRadius: 3.5, pulsePhase: 2.3, colorDark: '#60a5fa', colorLight: '#0072ce' },
-        { x: width * 0.18, y: height * 0.74, baseRadius: 3, pulsePhase: 1.9, colorDark: '#38bdf8', colorLight: '#0284c7' },
-        { x: width * 0.48, y: height * 0.79, baseRadius: 2.5, pulsePhase: 3.7, colorDark: '#818cf8', colorLight: '#f37021' },
-        { x: width * 0.82, y: height * 0.76, baseRadius: 3.2, pulsePhase: 5.0, colorDark: '#38bdf8', colorLight: '#0072ce' },
+        {
+          x: width * 0.15,
+          y: height * 0.22,
+          baseRadius: 3,
+          pulsePhase: 0,
+          colorDark: "#38bdf8",
+          colorLight: "#0072ce",
+        },
+        {
+          x: width * 0.35,
+          y: height * 0.19,
+          baseRadius: 2.5,
+          pulsePhase: 1.5,
+          colorDark: "#60a5fa",
+          colorLight: "#f37021",
+        },
+        {
+          x: width * 0.78,
+          y: height * 0.26,
+          baseRadius: 3.5,
+          pulsePhase: 3.2,
+          colorDark: "#38bdf8",
+          colorLight: "#0072ce",
+        },
+        {
+          x: width * 0.88,
+          y: height * 0.42,
+          baseRadius: 2.8,
+          pulsePhase: 4.1,
+          colorDark: "#818cf8",
+          colorLight: "#2563eb",
+        },
+        {
+          x: width * 0.22,
+          y: height * 0.51,
+          baseRadius: 3,
+          pulsePhase: 0.8,
+          colorDark: "#38bdf8",
+          colorLight: "#f37021",
+        },
+        {
+          x: width * 0.75,
+          y: height * 0.52,
+          baseRadius: 3.5,
+          pulsePhase: 2.3,
+          colorDark: "#60a5fa",
+          colorLight: "#0072ce",
+        },
+        {
+          x: width * 0.18,
+          y: height * 0.74,
+          baseRadius: 3,
+          pulsePhase: 1.9,
+          colorDark: "#38bdf8",
+          colorLight: "#0284c7",
+        },
+        {
+          x: width * 0.48,
+          y: height * 0.79,
+          baseRadius: 2.5,
+          pulsePhase: 3.7,
+          colorDark: "#818cf8",
+          colorLight: "#f37021",
+        },
+        {
+          x: width * 0.82,
+          y: height * 0.76,
+          baseRadius: 3.2,
+          pulsePhase: 5.0,
+          colorDark: "#38bdf8",
+          colorLight: "#0072ce",
+        },
       ];
 
       runners = [
-        { trackIndex: 0, progress: 0.1, speed: 0.0028, length: 280, color: '#38bdf8', lightColor: '#0072ce', coreColor: '#ffffff', glowColor: 'rgba(56, 189, 248, 0.85)', lightGlowColor: 'rgba(0, 114, 206, 0.55)', direction: 1, width: 3.2 },
-        { trackIndex: 0, progress: 0.65, speed: 0.002, length: 210, color: '#60a5fa', lightColor: '#0284c7', coreColor: '#ffffff', glowColor: 'rgba(96, 165, 250, 0.7)', lightGlowColor: 'rgba(2, 132, 199, 0.5)', direction: 1, width: 2.5 },
-        { trackIndex: 1, progress: 0.3, speed: 0.0035, length: 310, color: '#00f2fe', lightColor: '#0072ce', coreColor: '#ffffff', glowColor: 'rgba(0, 242, 254, 0.9)', lightGlowColor: 'rgba(0, 114, 206, 0.6)', direction: 1, width: 3.5 },
-        { trackIndex: 2, progress: 0.75, speed: 0.0022, length: 340, color: '#3b82f6', lightColor: '#1d4ed8', coreColor: '#ffffff', glowColor: 'rgba(59, 130, 246, 0.85)', lightGlowColor: 'rgba(29, 78, 216, 0.55)', direction: 1, width: 3.2 },
-        { trackIndex: 3, progress: 0.2, speed: 0.0026, length: 250, color: '#818cf8', lightColor: '#2563eb', coreColor: '#ffffff', glowColor: 'rgba(129, 140, 248, 0.85)', lightGlowColor: 'rgba(37, 99, 235, 0.5)', direction: 1, width: 2.8 },
-        { trackIndex: 4, progress: 0.45, speed: 0.0032, length: 320, color: '#38bdf8', lightColor: '#0072ce', coreColor: '#ffffff', glowColor: 'rgba(56, 189, 248, 0.9)', lightGlowColor: 'rgba(0, 114, 206, 0.6)', direction: 1, width: 3.2 },
-        { trackIndex: 5, progress: 0.8, speed: 0.0021, length: 270, color: '#60a5fa', lightColor: '#0284c7', coreColor: '#ffffff', glowColor: 'rgba(96, 165, 250, 0.8)', lightGlowColor: 'rgba(2, 132, 199, 0.55)', direction: 1, width: 2.8 },
+        {
+          trackIndex: 0,
+          progress: 0.1,
+          speed: 0.0028,
+          length: 280,
+          color: "#38bdf8",
+          lightColor: "#0072ce",
+          coreColor: "#ffffff",
+          glowColor: "rgba(56, 189, 248, 0.85)",
+          lightGlowColor: "rgba(0, 114, 206, 0.55)",
+          direction: 1,
+          width: 3.2,
+        },
+        {
+          trackIndex: 0,
+          progress: 0.65,
+          speed: 0.002,
+          length: 210,
+          color: "#60a5fa",
+          lightColor: "#0284c7",
+          coreColor: "#ffffff",
+          glowColor: "rgba(96, 165, 250, 0.7)",
+          lightGlowColor: "rgba(2, 132, 199, 0.5)",
+          direction: 1,
+          width: 2.5,
+        },
+        {
+          trackIndex: 1,
+          progress: 0.3,
+          speed: 0.0035,
+          length: 310,
+          color: "#00f2fe",
+          lightColor: "#0072ce",
+          coreColor: "#ffffff",
+          glowColor: "rgba(0, 242, 254, 0.9)",
+          lightGlowColor: "rgba(0, 114, 206, 0.6)",
+          direction: 1,
+          width: 3.5,
+        },
+        {
+          trackIndex: 2,
+          progress: 0.75,
+          speed: 0.0022,
+          length: 340,
+          color: "#3b82f6",
+          lightColor: "#1d4ed8",
+          coreColor: "#ffffff",
+          glowColor: "rgba(59, 130, 246, 0.85)",
+          lightGlowColor: "rgba(29, 78, 216, 0.55)",
+          direction: 1,
+          width: 3.2,
+        },
+        {
+          trackIndex: 3,
+          progress: 0.2,
+          speed: 0.0026,
+          length: 250,
+          color: "#818cf8",
+          lightColor: "#2563eb",
+          coreColor: "#ffffff",
+          glowColor: "rgba(129, 140, 248, 0.85)",
+          lightGlowColor: "rgba(37, 99, 235, 0.5)",
+          direction: 1,
+          width: 2.8,
+        },
+        {
+          trackIndex: 4,
+          progress: 0.45,
+          speed: 0.0032,
+          length: 320,
+          color: "#38bdf8",
+          lightColor: "#0072ce",
+          coreColor: "#ffffff",
+          glowColor: "rgba(56, 189, 248, 0.9)",
+          lightGlowColor: "rgba(0, 114, 206, 0.6)",
+          direction: 1,
+          width: 3.2,
+        },
+        {
+          trackIndex: 5,
+          progress: 0.8,
+          speed: 0.0021,
+          length: 270,
+          color: "#60a5fa",
+          lightColor: "#0284c7",
+          coreColor: "#ffffff",
+          glowColor: "rgba(96, 165, 250, 0.8)",
+          lightGlowColor: "rgba(2, 132, 199, 0.55)",
+          direction: 1,
+          width: 2.8,
+        },
       ];
 
       particles = Array.from({ length: 36 }, () => ({
@@ -146,8 +311,10 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
     const render = (time: number) => {
       lastTime = time;
 
-      mouseCurrentRef.current.x += (mouseTargetRef.current.x - mouseCurrentRef.current.x) * 0.05;
-      mouseCurrentRef.current.y += (mouseTargetRef.current.y - mouseCurrentRef.current.y) * 0.05;
+      mouseCurrentRef.current.x +=
+        (mouseTargetRef.current.x - mouseCurrentRef.current.x) * 0.05;
+      mouseCurrentRef.current.y +=
+        (mouseTargetRef.current.y - mouseCurrentRef.current.y) * 0.05;
 
       ctx.clearRect(0, 0, width, height);
 
@@ -162,14 +329,16 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
         }
         ctx.strokeStyle = isDark
           ? idx % 2 === 0
-            ? 'rgba(56, 189, 248, 0.08)'
-            : 'rgba(96, 165, 250, 0.06)'
+            ? "rgba(56, 189, 248, 0.08)"
+            : "rgba(96, 165, 250, 0.06)"
           : idx % 2 === 0
-            ? 'rgba(0, 114, 206, 0.18)'
-            : 'rgba(37, 99, 235, 0.14)';
+            ? "rgba(0, 114, 206, 0.18)"
+            : "rgba(37, 99, 235, 0.14)";
         ctx.stroke();
       });
 
+      // Runner — зөвхөн гэрэлтэх сүүл (streak) зурна. Толгой дээрх том
+      // бөөрөнхий glow болон цагаан цэгийг хассан.
       runners.forEach((runner) => {
         runner.progress += runner.speed;
         if (runner.progress > 1.2) {
@@ -179,11 +348,8 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
         const trackFn = tracks[runner.trackIndex];
         if (!trackFn) return;
 
-        const headPt = trackFn(Math.min(Math.max(runner.progress, 0), 1), width, height);
         const paramSpan = 0.13;
-
         const strokeColor = isDark ? runner.color : runner.lightColor;
-        const glowColor = isDark ? runner.glowColor : runner.lightGlowColor;
 
         if (runner.progress > 0 && runner.progress < 1.1) {
           const numTailSteps = 24;
@@ -195,7 +361,8 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
             const p1 = trackFn(Math.max(t1, 0), width, height);
             const p2 = trackFn(Math.max(t2, 0), width, height);
 
-            const segmentAlpha = (1 - s / numTailSteps) * (isDark ? 0.95 : 0.85);
+            const segmentAlpha =
+              (1 - s / numTailSteps) * (isDark ? 0.95 : 0.85);
 
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
@@ -203,27 +370,11 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
             ctx.strokeStyle = strokeColor;
             ctx.globalAlpha = segmentAlpha;
             ctx.lineWidth = runner.width * (1 - s / (numTailSteps * 1.4));
-            ctx.lineCap = 'round';
+            ctx.lineCap = "round";
             ctx.stroke();
           }
 
           ctx.globalAlpha = 1;
-          const flareRadius = isDark ? 20 : 16;
-          const glowGrad = ctx.createRadialGradient(headPt.x, headPt.y, 0, headPt.x, headPt.y, flareRadius);
-          glowGrad.addColorStop(0, runner.coreColor);
-          glowGrad.addColorStop(0.3, strokeColor);
-          glowGrad.addColorStop(0.75, glowColor);
-          glowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-          ctx.fillStyle = glowGrad;
-          ctx.beginPath();
-          ctx.arc(headPt.x, headPt.y, flareRadius, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = runner.coreColor;
-          ctx.beginPath();
-          ctx.arc(headPt.x, headPt.y, runner.width * 0.9, 0, Math.PI * 2);
-          ctx.fill();
         }
       });
 
@@ -248,7 +399,7 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
 
         ctx.beginPath();
         ctx.arc(node.x, node.y, 1.2, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = "#ffffff";
         ctx.globalAlpha = 1;
         ctx.fill();
       });
@@ -257,9 +408,15 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
       const my = mouseCurrentRef.current.y * height;
 
       const mouseGlow = ctx.createRadialGradient(mx, my, 0, mx, my, 130);
-      mouseGlow.addColorStop(0, isDark ? 'rgba(56, 189, 248, 0.16)' : 'rgba(0, 114, 206, 0.14)');
-      mouseGlow.addColorStop(0.5, isDark ? 'rgba(96, 165, 250, 0.06)' : 'rgba(56, 189, 248, 0.05)');
-      mouseGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      mouseGlow.addColorStop(
+        0,
+        isDark ? "rgba(56, 189, 248, 0.16)" : "rgba(0, 114, 206, 0.14)",
+      );
+      mouseGlow.addColorStop(
+        0.5,
+        isDark ? "rgba(96, 165, 250, 0.06)" : "rgba(56, 189, 248, 0.05)",
+      );
+      mouseGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.globalAlpha = 1;
       ctx.fillStyle = mouseGlow;
       ctx.beginPath();
@@ -282,8 +439,9 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
         if (p.x < -10) p.x = width + 10;
         if (p.x > width + 10) p.x = -10;
 
-        ctx.globalAlpha = Math.max(0, Math.min(p.alpha, 1)) * (isDark ? 0.75 : 0.65);
-        ctx.fillStyle = isDark ? '#93c5fd' : '#0072ce';
+        ctx.globalAlpha =
+          Math.max(0, Math.min(p.alpha, 1)) * (isDark ? 0.75 : 0.65);
+        ctx.fillStyle = isDark ? "#93c5fd" : "#0072ce";
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
@@ -297,7 +455,7 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
 
     return () => {
       cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [isDark]);
 
@@ -312,12 +470,19 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
   const parallaxY = (mousePos.y - 0.5) * 16;
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0" onMouseMove={handleContainerMouseMove}>
-      <div className={`absolute inset-0 transition-colors duration-700 ease-in-out ${isDark ? 'bg-[#060a17]' : 'bg-[#eef4fb]'}`} />
+    <div
+      className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0"
+      onMouseMove={handleContainerMouseMove}
+    >
+      <div
+        className={`absolute inset-0 transition-colors duration-700 ease-in-out ${isDark ? "bg-[#060a17]" : "bg-[#eef4fb]"}`}
+      />
 
       <div
         className="absolute -inset-8 transition-transform duration-700 ease-out will-change-transform"
-        style={{ transform: `scale(1.06) translate(${parallaxX}px, ${parallaxY}px)` }}
+        style={{
+          transform: `scale(1.06) translate(${parallaxX}px, ${parallaxY}px)`,
+        }}
       >
         {backgroundImageSrc && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -328,8 +493,8 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
             onLoad={() => setImageLoaded(true)}
             referrerPolicy="no-referrer"
             className={`w-full h-full object-cover object-center transition-all duration-1000 ${
-              imageLoaded ? 'opacity-100' : 'opacity-0'
-            } ${isDark ? 'brightness-[0.72] contrast-[1.12]' : 'brightness-[1.04] contrast-[1.08] saturate-[1.12]'}`}
+              imageLoaded ? "opacity-100" : "opacity-0"
+            } ${isDark ? "brightness-[0.72] contrast-[1.12]" : "brightness-[1.04] contrast-[1.08] saturate-[1.12]"}`}
           />
         )}
 
@@ -347,30 +512,34 @@ export const BackgroundAmbient: React.FC<BackgroundAmbientProps> = ({ themeMode,
         )}
       </div>
 
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: isDark ? 0.95 : 0.9 }} />
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ opacity: isDark ? 0.95 : 0.9 }}
+      />
 
       <div
         className="absolute -top-[10%] -left-[5%] w-[550px] h-[550px] rounded-full blur-[140px] pointer-events-none"
         style={{
           background: isDark
-            ? 'radial-gradient(circle, rgba(29, 78, 216, 0.28) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(0, 114, 206, 0.2) 0%, transparent 70%)',
+            ? "radial-gradient(circle, rgba(29, 78, 216, 0.28) 0%, transparent 70%)"
+            : "radial-gradient(circle, rgba(0, 114, 206, 0.2) 0%, transparent 70%)",
         }}
       />
       <div
         className="absolute -bottom-[10%] -right-[5%] w-[600px] h-[600px] rounded-full blur-[150px] pointer-events-none"
         style={{
           background: isDark
-            ? 'radial-gradient(circle, rgba(14, 165, 233, 0.22) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)',
+            ? "radial-gradient(circle, rgba(14, 165, 233, 0.22) 0%, transparent 70%)"
+            : "radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)",
         }}
       />
 
       <div
         className={`absolute inset-0 pointer-events-none transition-opacity duration-700 ${
           isDark
-            ? 'bg-radial-[circle_at_center,transparent_35%,rgba(4,7,15,0.75)_100%]'
-            : 'bg-radial-[circle_at_center,transparent_45%,rgba(148,163,184,0.22)_100%]'
+            ? "bg-radial-[circle_at_center,transparent_35%,rgba(4,7,15,0.75)_100%]"
+            : "bg-radial-[circle_at_center,transparent_45%,rgba(148,163,184,0.22)_100%]"
         }`}
       />
     </div>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Menu, ChevronDown, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { TodayWidget } from "./TodayWidget";
 
 const ROLE_LABELS: Record<string, { mn: string; en: string }> = {
   super_admin: { mn: "Super Admin", en: "Super Admin" },
@@ -49,7 +50,6 @@ export function DashboardNavbar({
   if (!user) return null;
 
   const roleLabel = ROLE_LABELS[user.role];
-  const now = new Date();
 
   return (
     <header className="dash-rail flex shrink-0 items-center justify-between gap-3 rounded-3xl px-4 py-3.5 shadow-lg">
@@ -62,13 +62,7 @@ export function DashboardNavbar({
         <Menu className="h-5 w-5" />
       </button>
 
-      <div className="hidden sm:block text-sm text-slate-400">
-        {now.toLocaleDateString(language === "mn" ? "mn-MN" : "en-US", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-        })}
-      </div>
+      <TodayWidget language={language} />
 
       <div className="flex items-center gap-2">
         <button
