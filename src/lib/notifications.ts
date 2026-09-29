@@ -49,7 +49,13 @@ export interface SentNotification {
   recipient_count: number;
   read_count: number;
   attachment_count: number;
+  send_email: boolean;
+  email_sent_count: number;
+  email_pending_count: number;
+  email_failed_count: number;
 }
+
+export type EmailStatus = "not_requested" | "pending" | "sending" | "sent" | "failed" | "skipped";
 
 /** Хүлээн авагч сонгох жагсаалтын мөр. */
 export interface RecipientOption {
@@ -67,6 +73,8 @@ export interface RecipientOption {
 export interface RecipientStatus {
   user_id: string;
   read_at: string | null;
+  email_status: EmailStatus;
+  email_sent_at: string | null;
   full_name: string;
   email: string;
   role: RecipientRole;

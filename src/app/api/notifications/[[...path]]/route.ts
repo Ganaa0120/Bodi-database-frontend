@@ -27,6 +27,7 @@ const ALLOWED_ROUTES: Record<string, Matcher[]> = {
     (s) => s.length === 1 && s[0] === 'read-all',
     (s) => s.length === 2 && s[0] === 'attachments' && s[1] === 'upload-url',
     (s) => s.length === 2 && UUID.test(s[0] ?? '') && s[1] === 'read',
+    (s) => s.length === 2 && UUID.test(s[0] ?? '') && s[1] === 'retry-email',
   ],
   DELETE: [(s) => s.length === 1 && UUID.test(s[0] ?? '')],
 };
