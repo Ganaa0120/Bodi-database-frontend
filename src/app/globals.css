@@ -48,6 +48,7 @@
   .focus-ring {
     outline: none;
   }
+
   .focus-ring:focus-visible {
     outline: 2px solid var(--color-brass);
     outline-offset: 2px;
@@ -150,15 +151,13 @@
   inset: 0;
   border-radius: inherit;
   padding: 1.5px;
-  background: conic-gradient(
-    from var(--beam-angle, 0deg) at 50% 50%,
-    transparent 0%,
-    transparent 66%,
-    #0072ce 82%,
-    #38bdf8 92%,
-    #ffffff 98%,
-    #0072ce 100%
-  );
+  background: conic-gradient(from var(--beam-angle, 0deg) at 50% 50%,
+      transparent 0%,
+      transparent 66%,
+      #0072ce 82%,
+      #38bdf8 92%,
+      #ffffff 98%,
+      #0072ce 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -176,12 +175,14 @@
   0% {
     --beam-angle: 0deg;
   }
+
   100% {
     --beam-angle: 360deg;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -189,6 +190,7 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
   .border-beam-container::after {
     animation: none;
   }

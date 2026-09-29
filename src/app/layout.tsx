@@ -20,8 +20,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Bodi Group — Санхүүгийн систем',
-  description: 'Bodi Group-ын охин компаниудын санхүүгийн нэгдсэн тайлагналын систем',
+  title: 'Бодь Групп - Бизнес төлөвлөгөөний нэгдсэн портал',
+  description: 'Bodi Group – Business Planning Portal',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

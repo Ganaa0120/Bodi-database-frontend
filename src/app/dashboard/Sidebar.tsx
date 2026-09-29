@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import {
   LayoutDashboard,
   Building2,
@@ -15,12 +15,22 @@ import {
   ChevronsLeft,
   ChevronsRight,
   BarChart3,
+  BookOpen,
+  Bell,
   X,
 } from "lucide-react";
 import { BodiLogo } from "@/components/BodiLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { UserRole } from "@/lib/types";
+import {
+  NOTIFICATIONS_CHANGED_EVENT,
+  UNREAD_POLL_INTERVAL_MS,
+  emitNotificationsArrived,
+} from "@/lib/notifications";
+
+/** Цэс дээр ямар тоо харуулах: хүлээгдэж буй тайлан эсвэл уншаагүй мэдэгдэл. */
+type BadgeKey = "pending" | "notifications";
 
 interface NavItem {
   key: string;
@@ -29,7 +39,7 @@ interface NavItem {
   labelEn: string;
   icon: ComponentType<{ className?: string }>;
   roles?: UserRole[];
-  showBadge?: boolean;
+  badgeKey?: BadgeKey;
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -39,6 +49,24 @@ const NAV_ITEMS: NavItem[] = [
     labelMn: "Хяналтын самбар",
     labelEn: "Dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    key: "analytics",
+    href: "/dashboard/analytics",
+    labelMn: "Аналитик",
+    labelEn: "Analytics",
+    icon: BarChart3,
+    roles: ["super_admin", "company"],
+  },
+  {
+    // super_admin: илгээх / хянах. company, department: inbox + уншаагүй тоо.
+    key: "notifications",
+    href: "/dashboard/notifications",
+    labelMn: "Мэдэгдэл",
+    labelEn: "Notifications",
+    icon: Bell,
+    roles: ["super_admin", "company", "department"],
+    badgeKey: "notifications",
   },
   {
     key: "companies",
@@ -95,7 +123,7 @@ const NAV_ITEMS: NavItem[] = [
     labelEn: "Approvals",
     icon: ClipboardCheck,
     roles: ["company"],
-    showBadge: true,
+    badgeKey: "pending",
   },
   {
     key: "my-submissions",
@@ -104,15 +132,17 @@ const NAV_ITEMS: NavItem[] = [
     labelEn: "My Reports",
     icon: FileText,
     roles: ["department"],
-    showBadge: true,
+    badgeKey: "pending",
   },
   {
-    key: "analytics",
-    href: "/dashboard/analytics",
-    labelMn: "Аналитик",
-    labelEn: "Analytics",
-    icon: BarChart3,
-    roles: ["super_admin", "company"],
+    // Бүх role-д харагдана: super_admin удирдана, company / department
+    // зөвхөн өөрт зориулсан зааврыг харна (backend шүүнэ).
+    key: "guides",
+    href: "/dashboard/guides",
+    labelMn: "Системийн заавар",
+    labelEn: "System Guides",
+    icon: BookOpen,
+    roles: ["super_admin", "company", "department"],
   },
 ];
 
@@ -138,11 +168,14 @@ function SidebarPanel({
   const { language } = useLanguage();
   const pathname = usePathname();
 
-  const [badgeCount, setBadgeCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
 
+  const isReceiver = user?.role === "company" || user?.role === "department";
+
+  // Хүлээгдэж буй тайлангийн тоо
   useEffect(() => {
-    if (!user || (user.role !== "company" && user.role !== "department"))
-      return;
+    if (!isReceiver) return;
 
     let cancelled = false;
     async function load() {
@@ -151,9 +184,9 @@ function SidebarPanel({
           "/api/form-submissions/pending-count",
         );
         const data = await res.json();
-        if (!cancelled && res.ok) setBadgeCount(data.count ?? 0);
+        if (!cancelled && res.ok) setPendingCount(data.count ?? 0);
       } catch {
-        // сүлжээний алдаа — badge 0 хэвээр үлдэнэ, критик биш
+        // сүлжээний алдаа — badge хэвээр үлдэнэ, критик биш
       }
     }
     load();
@@ -162,7 +195,63 @@ function SidebarPanel({
       cancelled = true;
       clearInterval(interval);
     };
-  }, [user, authorizedFetch]);
+  }, [isReceiver, authorizedFetch]);
+
+  // Уншаагүй мэдэгдлийн тоо — 15 сек тутам (tab харагдаж байх үед л),
+  // tab / window руу буцаж ирэхэд, мөн мэдэгдэл уншсан даруйд шинэчлэгдэнэ.
+  // Тоо нэмэгдвэл (шинэ мэдэгдэл ирвэл) мэдэгдлийн хуудсанд дохио өгнө.
+  const lastUnreadRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!isReceiver) return;
+
+    let cancelled = false;
+    let inFlight = false;
+
+    async function load() {
+      if (inFlight) return;
+      inFlight = true;
+      try {
+        const res = await authorizedFetch("/api/notifications/unread-count");
+        const data = await res.json();
+        if (cancelled || !res.ok) return;
+        const next: number = data.count ?? 0;
+        const prev = lastUnreadRef.current;
+        lastUnreadRef.current = next;
+        setUnreadCount(next);
+        if (prev !== null && next > prev) emitNotificationsArrived();
+      } catch {
+        // сүлжээний алдаа — badge хэвээр үлдэнэ
+      } finally {
+        inFlight = false;
+      }
+    }
+
+    function poll() {
+      if (document.visibilityState === "visible") load();
+    }
+    function handleVisibility() {
+      if (document.visibilityState === "visible") load();
+    }
+
+    load();
+    const interval = setInterval(poll, UNREAD_POLL_INTERVAL_MS);
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, load);
+    window.addEventListener("focus", load);
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, load);
+      window.removeEventListener("focus", load);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [isReceiver, authorizedFetch]);
+
+  const badgeCounts: Record<BadgeKey, number> = {
+    pending: pendingCount,
+    notifications: unreadCount,
+  };
 
   const visibleItems = NAV_ITEMS.filter(
     (item) => !item.roles || (user && item.roles.includes(user.role)),
@@ -231,7 +320,8 @@ function SidebarPanel({
           const isActive = pathname === item.href;
           const Icon = item.icon;
           const label = language === "mn" ? item.labelMn : item.labelEn;
-          const badge = item.showBadge && badgeCount > 0 ? badgeCount : null;
+          const count = item.badgeKey ? badgeCounts[item.badgeKey] : 0;
+          const badge = count > 0 ? count : null;
 
           return (
             <div key={item.key} className="group relative">
