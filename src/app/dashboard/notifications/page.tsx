@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import {
   Bell,
@@ -50,7 +56,8 @@ async function fetchJson<T>(
 ): Promise<T> {
   const res = await authorizedFetch(url, init);
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((data as { error?: string }).error || "Алдаа гарлаа.");
+  if (!res.ok)
+    throw new Error((data as { error?: string }).error || "Алдаа гарлаа.");
   return data as T;
 }
 
@@ -113,8 +120,12 @@ function Modal({
       >
         <div className="flex shrink-0 items-start justify-between gap-3 border-b border-white/10 px-5 pb-4 pt-5 sm:px-7 sm:pt-6">
           <div className="min-w-0">
-            <h2 className="break-words font-serif text-lg text-white sm:text-xl">{title}</h2>
-            {subtitle && <p className="mt-1 text-xs text-slate-500">{subtitle}</p>}
+            <h2 className="break-words font-serif text-lg text-white sm:text-xl">
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="mt-1 text-xs text-slate-500">{subtitle}</p>
+            )}
           </div>
           <button
             type="button"
@@ -127,7 +138,9 @@ function Modal({
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-7 sm:py-5">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-7 sm:py-5">
+          {children}
+        </div>
 
         {footer && (
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2.5 border-t border-white/10 px-5 py-4 sm:px-7">
@@ -174,7 +187,8 @@ function AttachmentList({ notificationId }: { notificationId: string }) {
         if (!cancelled) setItems(data.attachments);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Алдаа гарлаа.");
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : "Алдаа гарлаа.");
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -195,7 +209,9 @@ function AttachmentList({ notificationId }: { notificationId: string }) {
       </p>
 
       {isLoading ? (
-        <p className="mt-2 text-xs text-slate-500">{language === "mn" ? "Ачааллаж байна…" : "Loading…"}</p>
+        <p className="mt-2 text-xs text-slate-500">
+          {language === "mn" ? "Ачааллаж байна…" : "Loading…"}
+        </p>
       ) : error ? (
         <p className="mt-2 text-xs text-rose-300">{error}</p>
       ) : (
@@ -235,8 +251,12 @@ function AttachmentList({ notificationId }: { notificationId: string }) {
                   >
                     <FileText className="h-5 w-5 shrink-0 text-sky-300" />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm text-white">{a.file_name}</span>
-                      <span className="block text-[11px] text-slate-500">{formatBytes(a.file_size_bytes)}</span>
+                      <span className="block truncate text-sm text-white">
+                        {a.file_name}
+                      </span>
+                      <span className="block text-[11px] text-slate-500">
+                        {formatBytes(a.file_size_bytes)}
+                      </span>
                     </span>
                     <Download className="h-4 w-4 shrink-0 text-slate-400" />
                   </a>
@@ -259,15 +279,14 @@ async function uploadAttachment(
   contentType: string,
   language: string,
 ): Promise<{ blob_path: string; file_name: string; content_type: string }> {
-  const { uploadUrl, blobPath } = await fetchJson<{ uploadUrl: string; blobPath: string }>(
-    authorizedFetch,
-    "/api/notifications/attachments/upload-url",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contentType, fileSize: file.size }),
-    },
-  );
+  const { uploadUrl, blobPath } = await fetchJson<{
+    uploadUrl: string;
+    blobPath: string;
+  }>(authorizedFetch, "/api/notifications/attachments/upload-url", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contentType, fileSize: file.size }),
+  });
 
   const put = await fetch(uploadUrl, {
     method: "PUT",
@@ -282,7 +301,11 @@ async function uploadAttachment(
     );
   }
 
-  return { blob_path: blobPath, file_name: file.name, content_type: contentType };
+  return {
+    blob_path: blobPath,
+    file_name: file.name,
+    content_type: contentType,
+  };
 }
 
 function ComposeModal({
@@ -302,7 +325,10 @@ function ComposeModal({
   const [search, setSearch] = useState("");
 
   const [files, setFiles] = useState<{ file: File; type: string }[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{
+    done: number;
+    total: number;
+  } | null>(null);
 
   const [options, setOptions] = useState<RecipientOption[]>([]);
   const [optionsLoading, setOptionsLoading] = useState(true);
@@ -319,7 +345,8 @@ function ComposeModal({
         if (!cancelled) setOptions(data.recipients);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Алдаа гарлаа.");
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : "Алдаа гарлаа.");
       })
       .finally(() => {
         if (!cancelled) setOptionsLoading(false);
@@ -344,7 +371,10 @@ function ComposeModal({
   const groups = useMemo(() => {
     const map = new Map<string, { name: string; members: RecipientOption[] }>();
     for (const o of filtered) {
-      const group = map.get(o.company_id) ?? { name: o.company_name, members: [] };
+      const group = map.get(o.company_id) ?? {
+        name: o.company_name,
+        members: [],
+      };
       group.members.push(o);
       map.set(o.company_id, group);
     }
@@ -429,26 +459,44 @@ function ComposeModal({
     setError(null);
 
     if (title.trim().length < 2) {
-      setError(language === "mn" ? "Гарчиг дор хаяж 2 тэмдэгттэй байх ёстой." : "Title must be at least 2 characters.");
+      setError(
+        language === "mn"
+          ? "Гарчиг дор хаяж 2 тэмдэгттэй байх ёстой."
+          : "Title must be at least 2 characters.",
+      );
       return;
     }
     if (body.trim().length < 1) {
-      setError(language === "mn" ? "Мэдэгдлийн агуулгыг бичнэ үү." : "Please enter a message.");
+      setError(
+        language === "mn"
+          ? "Мэдэгдлийн агуулгыг бичнэ үү."
+          : "Please enter a message.",
+      );
       return;
     }
     if (target === "selected" && selected.size === 0) {
-      setError(language === "mn" ? "Дор хаяж нэг хүлээн авагч сонгоно уу." : "Select at least one recipient.");
+      setError(
+        language === "mn"
+          ? "Дор хаяж нэг хүлээн авагч сонгоно уу."
+          : "Select at least one recipient.",
+      );
       return;
     }
 
     setIsSending(true);
     try {
       // 1) Хавсралтууд (байвал) — нэг нэгээр байршуулна
-      const attachments: { blob_path: string; file_name: string; content_type: string }[] = [];
+      const attachments: {
+        blob_path: string;
+        file_name: string;
+        content_type: string;
+      }[] = [];
       if (files.length > 0) {
         setUploadProgress({ done: 0, total: files.length });
         for (const { file, type } of files) {
-          attachments.push(await uploadAttachment(authorizedFetch, file, type, language));
+          attachments.push(
+            await uploadAttachment(authorizedFetch, file, type, language),
+          );
           setUploadProgress({ done: attachments.length, total: files.length });
         }
       }
@@ -490,7 +538,9 @@ function ComposeModal({
       footer={
         <>
           <span className="mr-auto text-xs text-slate-400">
-            {language === "mn" ? `${recipientCount} хүнд илгээгдэнэ` : `${recipientCount} recipients`}
+            {language === "mn"
+              ? `${recipientCount} хүнд илгээгдэнэ`
+              : `${recipientCount} recipients`}
           </span>
           <button
             type="button"
@@ -535,7 +585,11 @@ function ComposeModal({
             onChange={(e) => setTitle(e.target.value)}
             disabled={isSending}
             maxLength={200}
-            placeholder={language === "mn" ? "Жишээ нь: Q3 тайлан оруулах хугацаа" : "e.g. Q3 report deadline"}
+            placeholder={
+              language === "mn"
+                ? "Жишээ нь: Q3 тайлан оруулах хугацаа"
+                : "e.g. Q3 report deadline"
+            }
             className="glass-input mt-2 w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 disabled:opacity-60"
           />
         </div>
@@ -552,12 +606,16 @@ function ComposeModal({
             rows={5}
             className="glass-input mt-2 w-full resize-y rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 disabled:opacity-60"
           />
-          <p className="mt-1 text-right text-[11px] text-slate-500">{body.length} / 5000</p>
+          <p className="mt-1 text-right text-[11px] text-slate-500">
+            {body.length} / 5000
+          </p>
         </div>
 
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            {language === "mn" ? "Хавсралт (заавал биш)" : "Attachments (optional)"}
+            {language === "mn"
+              ? "Хавсралт (заавал биш)"
+              : "Attachments (optional)"}
           </p>
 
           {files.length > 0 && (
@@ -573,8 +631,12 @@ function ComposeModal({
                     <FileText className="h-4 w-4 shrink-0 text-sky-300" />
                   )}
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-white">{file.name}</span>
-                    <span className="block text-[11px] text-slate-500">{formatBytes(file.size)}</span>
+                    <span className="block truncate text-sm text-white">
+                      {file.name}
+                    </span>
+                    <span className="block text-[11px] text-slate-500">
+                      {formatBytes(file.size)}
+                    </span>
                   </span>
                   <button
                     type="button"
@@ -669,7 +731,11 @@ function ComposeModal({
                   <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder={language === "mn" ? "Нэр, имэйл, компани…" : "Name, email, company…"}
+                    placeholder={
+                      language === "mn"
+                        ? "Нэр, имэйл, компани…"
+                        : "Name, email, company…"
+                    }
                     className="glass-input w-full rounded-lg py-2 pl-8 pr-3 text-xs text-white placeholder:text-slate-500"
                   />
                 </div>
@@ -685,7 +751,9 @@ function ComposeModal({
                   onClick={() => selectByRole("department")}
                   className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-sky-300 hover:bg-sky-500/15"
                 >
-                  {language === "mn" ? "+ Бүх хэлтсийн админ" : "+ All dept. admins"}
+                  {language === "mn"
+                    ? "+ Бүх хэлтсийн админ"
+                    : "+ All dept. admins"}
                 </button>
                 <button
                   type="button"
@@ -708,7 +776,9 @@ function ComposeModal({
                   </p>
                 ) : (
                   groups.map(([companyId, group]) => {
-                    const allOn = group.members.every((m) => selected.has(m.id));
+                    const allOn = group.members.every((m) =>
+                      selected.has(m.id),
+                    );
                     return (
                       <div key={companyId} className="mb-2 last:mb-0">
                         <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-300 hover:bg-white/5">
@@ -730,7 +800,9 @@ function ComposeModal({
                               onChange={() => toggle(m.id)}
                             />
                             <span className="min-w-0 flex-1">
-                              <span className="block truncate text-sm text-white">{m.full_name}</span>
+                              <span className="block truncate text-sm text-white">
+                                {m.full_name}
+                              </span>
                               <span className="block truncate text-[11px] text-slate-500">
                                 {m.role === "company"
                                   ? roleLabel(m.role, language)
@@ -778,7 +850,8 @@ function SentDetailModal({
         if (!cancelled) setRecipients(data.recipients);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Алдаа гарлаа.");
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : "Алдаа гарлаа.");
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -801,7 +874,9 @@ function SentDetailModal({
         {notification.body}
       </div>
 
-      {notification.attachment_count > 0 && <AttachmentList notificationId={notification.id} />}
+      {notification.attachment_count > 0 && (
+        <AttachmentList notificationId={notification.id} />
+      )}
 
       <div className="mt-5 flex items-center justify-between gap-3">
         <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -826,7 +901,10 @@ function SentDetailModal({
         ) : (
           <ul className="divide-y divide-white/5">
             {recipients.map((r) => (
-              <li key={r.user_id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5">
+              <li
+                key={r.user_id}
+                className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5"
+              >
                 {r.read_at ? (
                   <MailOpen className="h-4 w-4 shrink-0 text-slate-500" />
                 ) : (
@@ -836,7 +914,8 @@ function SentDetailModal({
                   <p className="truncate text-sm text-white">{r.full_name}</p>
                   <p className="truncate text-[11px] text-slate-500">
                     {r.company_name}
-                    {r.department_name ? ` · ${r.department_name}` : ""} · {roleLabel(r.role, language)}
+                    {r.department_name ? ` · ${r.department_name}` : ""} ·{" "}
+                    {roleLabel(r.role, language)}
                   </p>
                 </div>
                 <span
@@ -875,9 +954,12 @@ function DeleteModal({
     setIsDeleting(true);
     setError(null);
     try {
-      const res = await authorizedFetch(`/api/notifications/${notification.id}`, {
-        method: "DELETE",
-      });
+      const res = await authorizedFetch(
+        `/api/notifications/${notification.id}`,
+        {
+          method: "DELETE",
+        },
+      );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Алдаа гарлаа.");
@@ -893,7 +975,11 @@ function DeleteModal({
 
   return (
     <Modal
-      title={language === "mn" ? "Мэдэгдлийг устгах уу?" : "Delete this notification?"}
+      title={
+        language === "mn"
+          ? "Мэдэгдлийг устгах уу?"
+          : "Delete this notification?"
+      }
       onClose={onClose}
       maxWidth="sm:max-w-md"
       disableClose={isDeleting}
@@ -956,12 +1042,16 @@ function AdminView() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchJson<{ notifications: SentNotification[] }>(authorizedFetch, "/api/notifications/sent")
+    fetchJson<{ notifications: SentNotification[] }>(
+      authorizedFetch,
+      "/api/notifications/sent",
+    )
       .then((data) => {
         if (!cancelled) setItems(data.notifications);
       })
       .catch((err) => {
-        if (!cancelled) setLoadError(err instanceof Error ? err.message : "Алдаа гарлаа.");
+        if (!cancelled)
+          setLoadError(err instanceof Error ? err.message : "Алдаа гарлаа.");
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -1000,28 +1090,43 @@ function AdminView() {
             {language === "mn" ? "Ачааллаж байна…" : "Loading…"}
           </p>
         ) : loadError ? (
-          <p className="px-4 py-8 text-center text-sm text-rose-300">{loadError}</p>
+          <p className="px-4 py-8 text-center text-sm text-rose-300">
+            {loadError}
+          </p>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
             <Bell className="h-8 w-8 text-slate-500" />
             <p className="text-sm text-slate-400">
-              {language === "mn" ? "Илгээсэн мэдэгдэл алга." : "No notifications sent yet."}
+              {language === "mn"
+                ? "Илгээсэн мэдэгдэл алга."
+                : "No notifications sent yet."}
             </p>
           </div>
         ) : (
           <ul className="divide-y divide-white/5">
             {items.map((n) => {
-              const percent = n.recipient_count > 0 ? Math.round((n.read_count / n.recipient_count) * 100) : 0;
+              const percent =
+                n.recipient_count > 0
+                  ? Math.round((n.read_count / n.recipient_count) * 100)
+                  : 0;
               return (
-                <li key={n.id} className="flex flex-wrap items-center gap-3 px-5 py-4 sm:flex-nowrap">
+                <li
+                  key={n.id}
+                  className="flex flex-wrap items-center gap-3 px-5 py-4 sm:flex-nowrap"
+                >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0071BB]/15 text-sky-300">
                     <Send className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-white" title={n.title}>
+                    <p
+                      className="truncate text-sm font-medium text-white"
+                      title={n.title}
+                    >
                       {n.title}
                     </p>
-                    <p className="mt-0.5 line-clamp-1 text-xs text-slate-400">{n.body}</p>
+                    <p className="mt-0.5 line-clamp-1 text-xs text-slate-400">
+                      {n.body}
+                    </p>
                     <p className="mt-1 text-xs text-slate-500">
                       {formatDateTime(n.created_at, language)} ·{" "}
                       {n.target_type === "all"
@@ -1033,7 +1138,8 @@ function AdminView() {
                           : "Selected"}
                       {n.attachment_count > 0 && (
                         <span className="ml-1.5 inline-flex items-center gap-0.5 align-middle">
-                          · <Paperclip className="h-3 w-3" /> {n.attachment_count}
+                          · <Paperclip className="h-3 w-3" />{" "}
+                          {n.attachment_count}
                         </span>
                       )}
                     </p>
@@ -1045,7 +1151,10 @@ function AdminView() {
                         : `${n.read_count}/${n.recipient_count} read`}
                     </p>
                     <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
-                      <div className="h-full rounded-full bg-emerald-400/80" style={{ width: `${percent}%` }} />
+                      <div
+                        className="h-full rounded-full bg-emerald-400/80"
+                        style={{ width: `${percent}%` }}
+                      />
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
@@ -1079,12 +1188,19 @@ function AdminView() {
           onSent={(n) => setItems((prev) => [n, ...prev])}
         />
       )}
-      {viewing && <SentDetailModal notification={viewing} onClose={() => setViewing(null)} />}
+      {viewing && (
+        <SentDetailModal
+          notification={viewing}
+          onClose={() => setViewing(null)}
+        />
+      )}
       {deleting && (
         <DeleteModal
           notification={deleting}
           onClose={() => setDeleting(null)}
-          onDeleted={() => setItems((prev) => prev.filter((n) => n.id !== deleting.id))}
+          onDeleted={() =>
+            setItems((prev) => prev.filter((n) => n.id !== deleting.id))
+          }
         />
       )}
     </div>
@@ -1134,17 +1250,25 @@ function InboxView() {
 
     // Шууд уншсан болгож харуулна — алдаа гарвал буцаана.
     const optimisticReadAt = new Date().toISOString();
-    setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, read_at: optimisticReadAt } : x)));
+    setItems((prev) =>
+      prev.map((x) =>
+        x.id === n.id ? { ...x, read_at: optimisticReadAt } : x,
+      ),
+    );
     try {
       const data = await fetchJson<{ read_at: string }>(
         authorizedFetch,
         `/api/notifications/${n.id}/read`,
         { method: "POST" },
       );
-      setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, read_at: data.read_at } : x)));
+      setItems((prev) =>
+        prev.map((x) => (x.id === n.id ? { ...x, read_at: data.read_at } : x)),
+      );
       emitNotificationsChanged();
     } catch (err) {
-      setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, read_at: null } : x)));
+      setItems((prev) =>
+        prev.map((x) => (x.id === n.id ? { ...x, read_at: null } : x)),
+      );
       setActionError(err instanceof Error ? err.message : "Алдаа гарлаа.");
     }
   }
@@ -1153,11 +1277,17 @@ function InboxView() {
     setActionError(null);
     setIsMarkingAll(true);
     try {
-      await fetchJson<{ updated: number }>(authorizedFetch, "/api/notifications/read-all", {
-        method: "POST",
-      });
+      await fetchJson<{ updated: number }>(
+        authorizedFetch,
+        "/api/notifications/read-all",
+        {
+          method: "POST",
+        },
+      );
       const now = new Date().toISOString();
-      setItems((prev) => prev.map((x) => (x.read_at ? x : { ...x, read_at: now })));
+      setItems((prev) =>
+        prev.map((x) => (x.read_at ? x : { ...x, read_at: now })),
+      );
       emitNotificationsChanged();
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Алдаа гарлаа.");
@@ -1202,7 +1332,9 @@ function InboxView() {
             {language === "mn" ? "Ачааллаж байна…" : "Loading…"}
           </p>
         ) : loadError ? (
-          <p className="px-4 py-8 text-center text-sm text-rose-300">{loadError}</p>
+          <p className="px-4 py-8 text-center text-sm text-rose-300">
+            {loadError}
+          </p>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
             <Bell className="h-8 w-8 text-slate-500" />
@@ -1225,10 +1357,16 @@ function InboxView() {
                   >
                     <div
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                        unread ? "bg-[#F48120]/15 text-[#F48120]" : "bg-white/5 text-slate-500"
+                        unread
+                          ? "bg-[#F48120]/15 text-[#F48120]"
+                          : "bg-white/5 text-slate-500"
                       }`}
                     >
-                      {unread ? <Mail className="h-5 w-5" /> : <MailOpen className="h-5 w-5" />}
+                      {unread ? (
+                        <Mail className="h-5 w-5" />
+                      ) : (
+                        <MailOpen className="h-5 w-5" />
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p
@@ -1236,19 +1374,24 @@ function InboxView() {
                       >
                         {n.title}
                       </p>
-                      <p className={`mt-0.5 line-clamp-2 text-xs ${unread ? "text-slate-300" : "text-slate-500"}`}>
+                      <p
+                        className={`mt-0.5 line-clamp-2 text-xs ${unread ? "text-slate-300" : "text-slate-500"}`}
+                      >
                         {n.body}
                       </p>
                       <p className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500">
                         {formatDateTime(n.created_at, language)}
                         {n.attachment_count > 0 && (
                           <span className="inline-flex items-center gap-0.5">
-                            · <Paperclip className="h-3 w-3" /> {n.attachment_count}
+                            · <Paperclip className="h-3 w-3" />{" "}
+                            {n.attachment_count}
                           </span>
                         )}
                       </p>
                     </div>
-                    {unread && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#F48120]" />}
+                    {unread && (
+                      <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#F48120]" />
+                    )}
                   </button>
                 </li>
               );
@@ -1275,7 +1418,9 @@ function InboxView() {
           <div className="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-200">
             {opened.body}
           </div>
-          {opened.attachment_count > 0 && <AttachmentList notificationId={opened.id} />}
+          {opened.attachment_count > 0 && (
+            <AttachmentList notificationId={opened.id} />
+          )}
         </Modal>
       )}
     </div>
@@ -1296,10 +1441,16 @@ export default function NotificationsPage() {
   if (isInitializing || !user) {
     return (
       <div className="dash-bg flex min-h-screen items-center justify-center">
-        <p className="text-sm text-slate-400">{language === "mn" ? "Ачааллаж байна…" : "Loading…"}</p>
+        <p className="text-sm text-slate-400">
+          {language === "mn" ? "Ачааллаж байна…" : "Loading…"}
+        </p>
       </div>
     );
   }
 
-  return <DashboardShell>{user.role === "super_admin" ? <AdminView /> : <InboxView />}</DashboardShell>;
+  return (
+    <DashboardShell>
+      {user.role === "super_admin" ? <AdminView /> : <InboxView />}
+    </DashboardShell>
+  );
 }

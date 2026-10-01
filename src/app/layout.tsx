@@ -1,32 +1,40 @@
-import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
-import { Lora, Inter } from 'next/font/google';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { LanguageProvider } from '@/contexts/LanguageContext';
-import './globals.css';
-
-const lora = Lora({
-  subsets: ['latin', 'cyrillic', 'cyrillic-ext'],
-  variable: '--font-lora',
-  style: ['normal', 'italic'],
-  display: 'swap',
-});
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
+import { Inter } from "next/font/google";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import "./globals.css";
 
 const inter = Inter({
-  subsets: ['latin', 'cyrillic'],
-  variable: '--font-inter',
-  display: 'swap',
+  subsets: ["latin", "cyrillic", "cyrillic-ext"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: 'Бодь Групп - Бизнес төлөвлөгөөний нэгдсэн портал',
-  description: 'Bodi Group – Business Planning Portal',
+  title: "Бодь Групп - Бизнес төлөвлөгөөний нэгдсэн портал",
+  description: "Bodi Group – Business Planning Portal",
+  applicationName: "Бодь Групп",
+  icons: {
+    icon: [
+      { url: "/images/sololog.png", sizes: "any" },
+      { url: "/images/sololog.png", type: "image/png", sizes: "512x512" },
+    ],
+  },
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export const viewport: Viewport = {
+  themeColor: "#0B2A4A",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
-    <html lang="mn" className={`${lora.variable} ${inter.variable}`}>
+    <html lang="mn" className={inter.variable}>
       <body>
         <ThemeProvider>
           <LanguageProvider>

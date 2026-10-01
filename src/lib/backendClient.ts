@@ -321,6 +321,25 @@ export interface FormSubmissionResponseBody {
   submission: FormSubmission;
 }
 
+/**
+ * Хэлтсийн тайлан илгээх / засаж дахин илгээх payload.
+ * data — талбарын код → утга ({ "D-201": "120" }).
+ */
+export interface SubmissionPayload {
+  title: string;
+  data: Record<string, string>;
+  period_year: number;
+  period_quarter: number;
+}
+
+/** Компани засахад хугацаа заавал биш — илгээвэл хоёуланг нь хамт. */
+export interface CompanySubmissionEditPayload {
+  title: string;
+  data: Record<string, string>;
+  period_year?: number;
+  period_quarter?: number;
+}
+
 export async function backendListFormSubmissions(accessToken: string): Promise<FormSubmissionsListResponseBody> {
   const res = await fetch(`${BACKEND_URL}/api/form-submissions`, {
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -331,7 +350,7 @@ export async function backendListFormSubmissions(accessToken: string): Promise<F
 
 export async function backendCreateFormSubmission(
   accessToken: string,
-  payload: { title: string; data: Record<string, string> }
+  payload: SubmissionPayload
 ): Promise<FormSubmissionResponseBody> {
   const res = await fetch(`${BACKEND_URL}/api/form-submissions`, {
     method: 'POST',
@@ -345,7 +364,7 @@ export async function backendCreateFormSubmission(
 export async function backendResubmitFormSubmission(
   accessToken: string,
   id: string,
-  payload: { title: string; data: Record<string, string> }
+  payload: SubmissionPayload
 ): Promise<FormSubmissionResponseBody> {
   const res = await fetch(`${BACKEND_URL}/api/form-submissions/${id}`, {
     method: 'PATCH',
@@ -429,7 +448,7 @@ export interface UpdateSubmissionByCompanyResponseBody {
 export async function backendUpdateSubmissionByCompany(
   accessToken: string,
   id: string,
-  payload: { title: string; data: Record<string, string> }
+  payload: CompanySubmissionEditPayload
 ): Promise<UpdateSubmissionByCompanyResponseBody> {
   const res = await fetch(`${BACKEND_URL}/api/form-submissions/${id}/edit`, {
     method: 'PATCH',

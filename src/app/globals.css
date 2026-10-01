@@ -31,7 +31,7 @@
   body {
     background-color: var(--color-paper);
     color: var(--color-ink-text);
-    font-family: var(--font-sans);
+    font-family: var(--font-inter), sans-serif;
   }
 
   ::selection {

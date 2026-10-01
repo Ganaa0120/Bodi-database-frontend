@@ -1,3 +1,5 @@
+import type { Frequency, UnitId } from './units';
+
 export type UserRole = 'super_admin' | 'company' | 'department';
 export type Language = 'mn' | 'en';
 export type ThemeMode = 'dark' | 'light';
@@ -35,11 +37,20 @@ export interface Company {
   admin_email?: string | null;
 }
 
+/**
+ * Хэлтсийн формын нэг талбар (нэг data point).
+ *
+ * - code: өөрчлөгддөггүй түлхүүр ("D-201"). Тайлангийн утга үүгээр хадгалагдана,
+ *   KPI тооцоолол үүгээр заана. Нэг удаа оноосны дараа хэзээ ч солихгүй.
+ * - label: харагдах нэр — чөлөөтэй засаж болно, өгөгдөлд нөлөөлөхгүй.
+ * - unit: нэгжийн каталогоос (lib/units.ts). Утгын шалгалтыг нэгж тодорхойлно.
+ * - frequency: 'year' талбарууд зөвхөн 4-р улирлын тайланд бөглөгдөнө.
+ */
 export interface FormField {
+  code: string;
   label: string;
-  unit: string;
-  frequency: 'Сар' | 'Улирал' | 'Жил';
-  type: 'number' | 'text';
+  unit: UnitId;
+  frequency: Frequency;
   required: boolean;
   active: boolean;
 }
@@ -85,12 +96,21 @@ export interface FormSubmission {
   submitted_by: string;
   submitted_by_name?: string;
   title: string;
+  /** Талбарын код → утга (таслалгүй тоон string). Жишээ нь { "D-201": "120" }. */
   data: Record<string, string>;
   status: SubmissionStatus;
   rejection_reason: string | null;
   reviewed_by: string | null;
   reviewed_at: string | null;
   edit_unlocked: boolean;
+  /** Тайлант хугацаа. Хугацаа нэмэгдэхээс өмнөх тайлангууд null. */
+  period_year: number | null;
+  period_quarter: number | null;
+  /**
+   * Тайлан илгээсэн хэлтсийн загварын талбарууд — жагсаалт (GET) дээр ирнэ.
+   * Кодыг нэр, нэгж рүү хөрвүүлж харуулахад. Review/засварын хариуд ирэхгүй.
+   */
+  form_schema?: FormField[];
   created_at: string;
   updated_at: string;
 }
@@ -105,6 +125,9 @@ export interface EditRequest {
   id: string;
   submission_id: string;
   submission_title?: string;
+  submission_data?: Record<string, string>;
+  submission_status?: SubmissionStatus;
+  submission_created_at?: string;
   company_name?: string;
   department_name?: string;
   requested_by_name?: string;
@@ -128,21 +151,4 @@ export interface AnalyticsResponse {
   byGroup: AnalyticsGroupItem[];
   groupLabel: 'company' | 'department';
   filters: AnalyticsFilters;
-}
-
-export interface EditRequest {
-  id: string;
-  submission_id: string;
-  submission_title?: string;
-  submission_data?: Record<string, string>;
-  submission_status?: SubmissionStatus;
-  submission_created_at?: string;
-  company_name?: string;
-  department_name?: string;
-  requested_by_name?: string;
-  reason: string;
-  status: 'pending' | 'approved' | 'denied';
-  reviewed_by: string | null;
-  reviewed_at: string | null;
-  created_at: string;
 }

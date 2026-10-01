@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { backendResubmitFormSubmission, backendDeleteSubmissionByCompany, BackendError } from '@/lib/backendClient';
 
+/** Бүхэл тоо эсэх (хугацааны утгуудад). Нарийн хязгаарыг backend шалгана. */
+function isInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value);
+}
+
+// Хэлтэс татгалзсан тайлангаа засаж дахин илгээх.
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authHeader = req.headers.get('authorization') || '';
   const accessToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
@@ -8,7 +14,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const { id } = await params;
 
-  let body: { title?: unknown; data?: unknown };
+  let body: { title?: unknown; data?: unknown; period_year?: unknown; period_quarter?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -17,11 +23,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (typeof body.title !== 'string' || typeof body.data !== 'object' || body.data === null) {
     return NextResponse.json({ error: 'Гарчиг болон талбаруудыг бөглөнө үү.' }, { status: 400 });
   }
+  if (!isInteger(body.period_year) || !isInteger(body.period_quarter)) {
+    return NextResponse.json({ error: 'Тайлант он болон улирлыг сонгоно уу.' }, { status: 400 });
+  }
 
   try {
     const data = await backendResubmitFormSubmission(accessToken, id, {
       title: body.title,
       data: body.data as Record<string, string>,
+      period_year: body.period_year,
+      period_quarter: body.period_quarter,
     });
     return NextResponse.json(data);
   } catch (err) {
